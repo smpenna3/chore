@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <script type="text/javascript">
+            // Function to disable enter key
+            function stopRKey(evt) {
+              var evt = (evt) ? evt : ((event) ? event : null);
+              var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+              if ((evt.keyCode == 13) && (node.type=="text"))  {return false;}
+            }
+
+            document.onkeypress = stopRKey;
+         </script> 
+    </head>
+    <body>
+        
+        <h1>Chores</h1>
+        <p>{{chores}}</p>
+    
+        
+        <form method='post'>
+            <input name='addvalue'>
+            <input type='submit' value='Add Chore' name='addChore'>
+            <input name='removevalue'>
+            <input type='submit' value='Remove Chore' name='removeChore'>
+        </form>
+        
+        <h1>Users</h1>
+        <p>{{users}}</p>
+        <form method='post'>
+            <input name='addUserValue'>
+            <input type='submit' value='Add User' name='addUser'>
+            <input name='removeUserValue'>
+            <input type='submit' value='Remove User' name='removeUser'>
+        </form>
+        <p>{{message}}</p>
+        
+        <h1>Assignments</h1>
+        <form method='post'>
+            <input type='submit' value='Assign' name='assign'>
+        </form>
+        <p>{{assignments}}</p>
+            
+    </body>
+</html>

@@ -1,0 +1,18 @@
+<html>
+    
+    <body>
+        <h1>Assigned Chores</h1>
+        <p>{{warnings}}</p>
+        <table>
+        {% for key, value in tableValues.items() %}
+            <tr>
+                <th>{{key}}</th>
+                <th>{{value}}</th>
+            </tr>
+
+        {% endfor %}
+        </table>
+    </body>
+
+
+</html>
