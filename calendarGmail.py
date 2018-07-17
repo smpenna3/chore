@@ -56,54 +56,60 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def insertEvent(title, timeToRun, email):
-    logger.info("Event received <Title: " + str(title) + ", Runtime: " + str(timeToRun) + ", Email: " + str(email) + ">")
 
-    if(timeToRun == 'sunday'): 
-        check = 0
-    elif(timeToRun == 'monday'):
-        check = 1   
-    elif(timeToRun == 'tueday'):
-        check = 2
-    elif(timeToRun == 'wednesday'):
-        check = 3
-    elif(timeToRun == 'thursday'):
-        check = 4
-    elif(timeToRun == 'friday'):
-        check = 5
-    elif(timeToRun == 'saturday'):
-        check = 6
-
-    # Find the next date 
-    d = datetime.datetime.now()
-    while d.strftime('%w') != str(check):
-        logger.debug(d.strftime('%w'))
-        d+=datetime.timedelta(1)
-
-    dateToRun = d.strftime('%Y-%m-%d')
-
-    """Shows basic usage of the Google Calendar API.
-
-    Creates a Google Calendar API service object and outputs a list of the next
-    10 events on the user's calendar.
-    """
+def insertEvent(title, weekday, email, location):
+    # Get the account credentials from the JSON file
     try:
         credentials = get_credentials()
         http = credentials.authorize(httplib2.Http())
         service = discovery.build('calendar', 'v3', http=http)
     except:
+        logger.error('ERROR: Could not find credentials')
         return 2
-
+    
+    # Determine the start and end dates from the weekday given
+    # Need to look for the next date of that weekday
+    if(weekday == 5):
+        # Sun-Wed
+        logger.info('Emailing new assignments for Sun-Wed')
+        checkStart = 0
+        checkEnd = 3
+        
+    elif(weekday == 2):
+        # Thur-Sat
+        logger.info('Emailing new assignments for Thu-Sat')
+        checkStart = 4
+        checkEnd = 0
+    
+    else:
+        logger.error('Weekday not recognized: ' + str(weekday))
+        
+    # Find start date
+    start = datetime.datetime.now()
+    while start.strftime('%w') != str(checkStart):
+        start += datetime.timedelta(1)
+    startDate = start.strftime('%Y-%m-%d')
+    logger.debug('Start Date ' + str(startDate))
+    
+    # Find end date
+    end = datetime.datetime.now()
+    while ((end.strftime('%w') != str(checkEnd)) or (start > end)):
+        end += datetime.timedelta(1)
+    endDate = end.strftime('%Y-%m-%d')
+    logger.debug('End Date ' + str(endDate))
+    
+    logger.debug(start > end)
+        
     event = {
       'summary': title,
-      'location': 'Team HQ',
+      'location': location,
       'description': 'Time to do your chores!',
       'start': {
-        'date': dateToRun,
+        'date': startDate,
         'timeZone': 'America/New_York',
       },
       'end': {
-        'date': dateToRun,
+        'date': endDate,
         'timeZone': 'America/New_York',
       },
       'attendees': [
@@ -119,6 +125,8 @@ def insertEvent(title, timeToRun, email):
     }
     try:
         event = service.events().insert(calendarId='primary', sendNotifications=True, body=event).execute()
-    except:
+    except Exception as e:
+        logger.error('ERROR: Could not add calendar event: ' + str(e))
         return 3
+    logger.info('Setup event and sent email')
     return 0

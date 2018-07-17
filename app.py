@@ -16,6 +16,12 @@ debugSet = False
 
 # Set if the website runs on local network
 external = False
+
+# Should emails be sent?
+emailFlag = True
+
+# Location for event
+eventLocation = '45 Westland Ave'
 #############################################
 #############################################
 
@@ -57,15 +63,16 @@ else:
 # Define a function to set the chores 
 # Each user is the key to a dictionary
 # Each value is a list with their chores
-global choresDict 
+global assignment 
 
 assignmentFileName = 'assignment.npy'
 if os.path.isfile(assignmentFileName): 
     assignment = np.load(assignmentFileName).item()
     logger.warning('Using existing assignments file')
+    logger.debug(assignment)
 else:
     assignment = {}
-    np.save(assignmentFileName, np.array(assignment))
+    np.save(assignmentFileName, assignment)
     logger.warning('Creating blank assignments file')
        
 def initialAssign():
@@ -87,15 +94,39 @@ def initialAssign():
             if(i >= numUsers):
                 i = 0
 
-        logger.debug(assignment)
-        return assignment
+        #logger.debug(assignment)
+        np.save(assignmentFileName, assignment)
     else:
         logger.warning('Empty chore list or user list')
 
+global emails
+emailsFileName = 'emails.npy'
+if os.path.isfile(emailsFileName): 
+    emails = np.load(emailsFileName).item()
+    logger.warning('Using existing emails file')
+else:
+    emails = {}
+    np.save(emailsFileName, np.array(emails))
+    logger.warning('Creating blank emails file')
     
-def emailAssignments():
-   logger.info('Emailing new assignments') 
-        
+def emailAssignments():  
+    if(emailFlag):
+        global assignment, users, chores, emails # Get global variables
+        # Get the current weekday
+        # Monday is 0, Sunday is 6
+        #weekday = dt.datetime.today().weekday()
+        weekday = 5
+
+        # Loop through the assignments dictionary and email each person with their chores
+        for key, value in assignment.items():
+            try:
+                userEmail = emails[key]
+                logger.debug('key ' + str(key))
+                logger.debug('value ' + str(value))
+                insertEvent(str(value), weekday, userEmail, eventLocation)
+            except:
+                logger.warning('No email for user ' + str(key))
+    
         
 def rotateAssign():
     global assignment, users, chores # Get the global assignment, user list, and chores list
@@ -120,6 +151,7 @@ def rotateAssign():
         logger.warning('Assignments not set yet, setting initial assignments')
     
     emailAssignments()
+    np.save(assignmentFileName, assignment)
     
     
 ###########################################################
@@ -131,9 +163,8 @@ s.start()
 logger.info('Scheduler setup')  
 
 # Run the rotation on Wed and Sat night at 11:55PM
-s.add_job(rotateAssign, 'cron', id='rotation', day_of_week='wed,sat', hour='23', minute='55')
+s.add_job(rotateAssign, 'cron', id='rotation', day_of_week='wed,sat', hour='23', minute='0')
 
-    
     
 ##########################################################
 # SETUP THE WEB SERVER
@@ -157,7 +188,7 @@ def home():
 # Define a maintenance/setup page
 @app.route('/setup', methods=['POST', 'GET'])
 def setup():
-    global chores, users, assignment # Get global chores list and users list
+    global chores, users, assignment, emails # Get global chores list and users list
     message = '' # Reset message field
     changeFlag = 0
     if request.method == 'POST':
@@ -186,9 +217,12 @@ def setup():
         elif 'addUser' in request.form:
             changeFlag = 1
             addValue = request.form['addUserValue']
+            emailValue = request.form['userEmail']
             if(addValue != '' and addValue not in users):
                 logger.warning('Adding user: ' + str(addValue))
                 users.append(addValue)
+                emails[addValue] = str(emailValue)
+                np.save(emailsFileName, emails)
                 np.save(usersFileName, np.array(users))
                 message = 'Added ' + str(addValue) + ' from list'
                 
@@ -222,6 +256,11 @@ def setup():
                 users = []
                 chores = []
                 assignment = {}
+                emails = {}
+                np.save(usersFileName, np.array(users))
+                np.save(choresFileName, np.array(chores))
+                np.save(assignmentFileName, assignment)
+                np.save(emailsFileName, emails)
                 logger.warning('All data cleared')
             else:
                 logger.warning('Type "clear" to confirm and repress')
@@ -236,7 +275,7 @@ def setup():
     except Exception as e:
         nextrun = "Couldn't get next runtime " + e
     
-    return render_template('setup.html', chores=chores, message=message, users=users, assignment=assignment, nextrun=nextrun)
+    return render_template('setup.html', chores=chores, message=message, users=users, assignment=assignment, nextrun=nextrun, emails=emails)
 
 
 # Run the application

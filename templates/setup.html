@@ -18,18 +18,20 @@
     
         
         <form method='post'>
-            <input name='addvalue'>
+            <input name='addvalue' placeholder='Chore'>
             <input type='submit' value='Add Chore' name='addChore'>
-            <input name='removevalue'>
+            <input name='removevalue' placehoder='Chore'>
             <input type='submit' value='Remove Chore' name='removeChore'>
         </form>
         
         <h1>Users</h1>
         <p>{{users}}</p>
+        <p>{{emails}}</p>
         <form method='post'>
-            <input name='addUserValue'>
+            <input name='addUserValue' placeholder='Name'>
+            <input name='userEmail' placeholder='Email Addr'>
             <input type='submit' value='Add User' name='addUser'>
-            <input name='removeUserValue'>
+            <input name='removeUserValue' placeholder='Name'>
             <input type='submit' value='Remove User' name='removeUser'>
         </form>
         <p>{{message}}</p>
