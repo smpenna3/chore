@@ -3,3 +3,6 @@
 
 # Ignore logs
 *.log
+
+# Ignore Json ( google)
+*.json

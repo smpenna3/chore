@@ -8,6 +8,7 @@ import json
 import datetime as dt
 import traceback
 import numpy as np
+from calendarGmail import *
 
 ############## PARAMETERS ###################
 # Set if debugging is active
