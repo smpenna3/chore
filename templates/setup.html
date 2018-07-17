@@ -34,11 +34,22 @@
         </form>
         <p>{{message}}</p>
         
-        <h1>Assignments</h1>
+        <h1>Debug Panel</h1>
         <form method='post'>
             <input type='submit' value='Assign' name='assign'>
+            <input type='submit' value='Rotate' name='rotate'>
+            <input type='submit' value='Email' name='email'>
         </form>
         <p>{{assignments}}</p>
-            
+        
+        <h1>Next Runtime</h1>
+        <p>{{nextrun}}</p>
+        
+        <p>Clear All</p>
+        <form method='post'>
+            <p>Type 'clear' to confirm</p>
+            <input name='clearConfirm'>
+            <input type='submit' value='Clear all' name='clear'>
+        </form>
     </body>
 </html>
