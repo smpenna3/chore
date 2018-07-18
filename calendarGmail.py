@@ -81,24 +81,36 @@ def insertEvent(title, weekday, email, location):
         checkStart = 4
         checkEnd = 0
     
+    elif(weekday < 2):
+        # Sun - Wed
+        logger.info('Weekday: ' + str(weekday) + ' sending assignments Today-Wed')
+        checkStart = ''
+        startDate = datetime.datetime.now().strftime('%Y-%m-%d')
+        start = datetime.datetime.now()
+        checkEnd = 3
+        
     else:
-        logger.error('Weekday not recognized: ' + str(weekday))
+        # Thurs - Sat
+        logger.info('Weekday: ' + str(weekday) + ' sending assignments Today-Sat')
+        checkStart = ''
+        startDate = datetime.datetime.now().strftime('%Y-%m-%d')
+        start = datetime.datetime.now()
+        checkEnd = 0
         
     # Find start date
-    start = datetime.datetime.now()
-    while start.strftime('%w') != str(checkStart):
-        start += datetime.timedelta(1)
-    startDate = start.strftime('%Y-%m-%d')
-    logger.debug('Start Date ' + str(startDate))
+    if(checkStart != ''):
+        start = datetime.datetime.now()
+        while start.strftime('%w') != str(checkStart):
+            start += datetime.timedelta(1)
+        startDate = start.strftime('%Y-%m-%d')
+        #logger.debug('Start Date ' + str(startDate))
     
     # Find end date
     end = datetime.datetime.now()
     while ((end.strftime('%w') != str(checkEnd)) or (start > end)):
         end += datetime.timedelta(1)
     endDate = end.strftime('%Y-%m-%d')
-    logger.debug('End Date ' + str(endDate))
-    
-    logger.debug(start > end)
+    #logger.debug('End Date ' + str(endDate))
         
     event = {
       'summary': title,
@@ -128,5 +140,5 @@ def insertEvent(title, weekday, email, location):
     except Exception as e:
         logger.error('ERROR: Could not add calendar event: ' + str(e))
         return 3
-    logger.info('Setup event and sent email')
+    logger.info('Setup event and sent email to ' + email)
     return 0

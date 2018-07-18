@@ -104,6 +104,7 @@ emailsFileName = 'emails.npy'
 if os.path.isfile(emailsFileName): 
     emails = np.load(emailsFileName).item()
     logger.warning('Using existing emails file')
+    logger.debug(emails)
 else:
     emails = {}
     np.save(emailsFileName, np.array(emails))
@@ -114,8 +115,7 @@ def emailAssignments():
         global assignment, users, chores, emails # Get global variables
         # Get the current weekday
         # Monday is 0, Sunday is 6
-        #weekday = dt.datetime.today().weekday()
-        weekday = 5
+        weekday = dt.datetime.today().weekday()
 
         # Loop through the assignments dictionary and email each person with their chores
         for key, value in assignment.items():
@@ -124,8 +124,10 @@ def emailAssignments():
                 logger.debug('key ' + str(key))
                 logger.debug('value ' + str(value))
                 insertEvent(str(value), weekday, userEmail, eventLocation)
-            except:
+            except Exception as e:
+                #logger.warning(e)
                 logger.warning('No email for user ' + str(key))
+                #logger.debug(emails)
     
         
 def rotateAssign():
@@ -147,10 +149,14 @@ def rotateAssign():
                 i = 0
     
     else:
+        # If the assignment dictionary is empty we need to do an initial assign
         initialAssign()
         logger.warning('Assignments not set yet, setting initial assignments')
     
+    # Send out the assignments to everyone with an email
     emailAssignments()
+    
+    # Save assignments to file in case of program crash
     np.save(assignmentFileName, assignment)
     
     
@@ -180,10 +186,22 @@ def home():
     if(assignment == {}):
         logger.warning('No chores have been assigned yet')
         warnings = 'No chores have been assigned, contact Admin'
+        
+    # Find which day the current assignments are due
+    weekday = dt.datetime.today().weekday()
+    if(weekday < 2):
+        endDate = 'Wednesday'
+    else:
+        endDate = 'Sunday'
     
     # Return the table
-    return render_template('index.html', tableValues=assignment, warnings=warnings)
+    return render_template('index.html', tableValues=assignment, warnings=warnings, endDate=endDate)
 
+
+# Load a simple page on 404 error which directs user back to safety at home page
+@app.errorhandler(404)
+def errorHandle(e):
+    return render_template('404.html')
 
 # Define a maintenance/setup page
 @app.route('/setup', methods=['POST', 'GET'])
