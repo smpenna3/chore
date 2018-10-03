@@ -1,0 +1,26 @@
+table.chores tr:nth-child(even){
+	background-color: #7f9dd1;
+}
+
+table.chores tr{
+	font-size: 14px;
+	background-color: #8fa0bf;
+}
+
+table.chores{
+	background-color: #c0cce0;
+	border-spacing: 5px;
+	width: 40vw;
+}
+
+table.chores th, td{
+	padding: 15px;
+}
+
+table.chores table, th, tr{
+	border: 1px solid black;
+}
+
+body{
+	background-color: #eaf2ff;
+}

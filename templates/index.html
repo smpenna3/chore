@@ -1,17 +1,25 @@
 <html>
-    
+    <head>
+		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='index.css') }}">
+	</head>
+	
     <body>
         <h1>Assigned Chores</h1>
         <p>Through {{endDate}}</p>
         <p>{{warnings}}</p>
-        <table>
+        <table class="chores">
+		<thead>
+			<th>Name</th>
+			<th>Chores</th>
+		</thead>
+		<tbody>
         {% for key, value in tableValues.items() %}
             <tr>
-                <th>{{key}}</th>
-                <th>{{value}}</th>
+                <td width="30%">{{key}}</td>
+                <td width="70%">{{value}}</td>
             </tr>
-
         {% endfor %}
+		<tbody>
         </table>
     </body>
 
