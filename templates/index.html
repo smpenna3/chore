@@ -1,27 +1,42 @@
 <html>
     <head>
 		<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='index.css') }}">
+		
+		<script type="text/javascript" src="{{ url_for('static', filename='socket.io.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='jquery.min.js') }}"></script>
 	</head>
 	
     <body>
-        <h1>Assigned Chores</h1>
-        <p>Through {{endDate}}</p>
-        <p>{{warnings}}</p>
+        <!--<h1>Assigned Chores <span>Through {{endDate}}</span></h1>-->
+        <p style="display:none;" id="warnings">{{warnings}}</p>
         <table class="chores">
 		<thead>
 			<th>Name</th>
 			<th>Chores</th>
+			<th>Complete</th>
 		</thead>
 		<tbody>
         {% for key, value in tableValues.items() %}
-            <tr>
-                <td width="30%">{{key}}</td>
-                <td width="70%">{{value}}</td>
-            </tr>
+			{% for i in range(value|length) %}
+				<tr>
+					<!-- Add the name and rowspan it to make it fill all rows with their chores -->
+					{% if i == 0 %}
+					<td width="30%" class="names" rowspan="{{ value|length }}">{{key}}</td>
+					{% endif %}
+					
+					<!-- Check if the chore was completed, if so grey out -->
+					{% if completion[value[i]] %}
+					<td class="chore complete" width="45%">{{ value[i] }}</td>
+					{% else %}
+					<td class="chore" width="45%">{{ value[i] }}</td>
+					{% endif %}
+					<td width="25" style="padding: 1px;"><button onclick="choreComplete('{{ value[i] }}')" class="chorecomplete">Complete</button></td>
+				</tr>
+			{% endfor %}
         {% endfor %}
 		<tbody>
         </table>
     </body>
-
-
+	
+	<script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
 </html>

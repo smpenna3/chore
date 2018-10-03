@@ -53,7 +53,7 @@ def get_credentials():
             credentials = tools.run_flow(flow, store, flags)
         else: # Needed only for compatibility with Python 2.6
             credentials = tools.run(flow, store)
-        print('Storing credentials to ' + credential_path)
+        logger.info('Storing credentials to ' + credential_path)
     return credentials
 
 

@@ -10,17 +10,59 @@ table.chores tr{
 table.chores{
 	background-color: #c0cce0;
 	border-spacing: 5px;
-	width: 40vw;
+	width: 70vw;
 }
-
 table.chores th, td{
 	padding: 15px;
+}
+
+table.chores th{
+	background-color: #5e6877;
 }
 
 table.chores table, th, tr{
 	border: 1px solid black;
 }
 
+
+.chore{
+	opacity: 1;
+	font-weight: bold;
+}
+.complete{
+	opacity: 0.4;
+	font-weight: normal;
+}
+
 body{
 	background-color: #eaf2ff;
+}
+
+
+#warnings{
+	width: 50vw;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	border-radius: 10px;
+	text-align: center;
+	background-color: #ffb168;
+	margin: 15px auto 15px auto;
+}
+
+
+.names{
+	text-align: center;
+}
+
+
+button:hover{
+	background-color: #5695ff;
+}
+
+button.chorecomplete{
+	width: 100%;
+	height: 35px;
+	border: none;
+	border-radius: 5px;
+	background-color: #ccdfff;
 }
