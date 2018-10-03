@@ -10,13 +10,13 @@ from calendarGmail import *
 
 ############## PARAMETERS ###################
 # Set if debugging is active
-debugSet = True
+debugSet = False
 
 # Set if the website runs on local network
 external = False
 
 # Should emails be sent?
-emailFlag = True
+emailFlag = False
 
 # Location for event
 eventLocation = '45 Westland Ave'
