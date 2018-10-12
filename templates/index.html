@@ -25,11 +25,7 @@
 					{% endif %}
 					
 					<!-- Check if the chore was completed, if so grey out -->
-					{% if completion[value[i]] %}
 					<td class="chore complete" width="45%">{{ value[i] }}</td>
-					{% else %}
-					<td class="chore" width="45%">{{ value[i] }}</td>
-					{% endif %}
 					<td width="25" style="padding: 1px;"><button onclick="choreComplete('{{ value[i] }}')" class="chorecomplete">Complete</button></td>
 				</tr>
 			{% endfor %}

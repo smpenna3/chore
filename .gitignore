@@ -4,5 +4,12 @@
 # Ignore logs
 *.log
 
-# Ignore Json ( google)
+# Ignore Json (googlecalendar generates)
 *.json
+
+# Ignore database
+*.db
+
+# Ignore pycache
+__pycache__/
+*.pyc
