@@ -68,7 +68,7 @@ class Chore(db.Model):
 	name = db.Column(db.String(), unique=True)
 	frequency = db.Column(db.Integer, unique=False)
 	complete = db.Column(db.Boolean, unique=False)
-	user_id = db.Column(db.Integer, ForeignKey('user.id'))
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 # Create all
 db.create_all()
@@ -88,7 +88,13 @@ def initialAssign():
 		# Go through each chore and assign a user to it
 		i = 0
 		for chore in db.session.query(Chore).all():
-			chore.
+			query = db.session.query(User).all()[i]
+			query.chores.append(chore)
+			i += 1
+			if(i >= usersLen):
+				i = 0
+				
+		logger.info('Initial assign completed')
 		
 	else:
 		logger.warning('Empty chore list or user list')
@@ -97,8 +103,7 @@ def initialAssign():
 	for chore in db.session.query(Chore).all():
 		chore.complete = False
 	db.session.commit()
-	
-	logger.info('Reset completion')
+
 	
 def emailAssignments():  
 	if(emailFlag):
@@ -108,51 +113,41 @@ def emailAssignments():
 		weekday = dt.datetime.today().weekday()
 
 		# Loop through the assignments dictionary and email each person with their chores
-		for key, value in assignment.items():
+		for user in db.session.query(Users).all():
 			try:
-				userEmail = emails[key]
-				logger.debug('key ' + str(key))
-				logger.debug('value ' + str(value))
-				insertEvent(str(value), weekday, userEmail, eventLocation)
-			except Exception as e:
-				logger.warning('No email for user ' + str(key))
+				if(user.email != ''):
+					userEmail = user.email
+					chores = [x.name for x in user.chores]
+					insertEvent(str(chores), weekday, userEmail, eventLocation)
+				else:
+					logger.warning('No email for user ' + str(user.name))
+			except:
+				logger.error('Could not send email for user ' + str(user.name))
 	
-		logger.info('Updated assignments: ' + str(assignment))
+	
+		logger.info('Updated assignments')
 		
 		
 def rotateAssign():
-	global assignment # Get the global assignment, user list, and chores list
-	numUsers = len(users) # Find how many users there are
+	# Get the number of users
+	usersLen = db.session.query(User).count()
 	
-	if(assignment != {}):
-		# Make a temp list of lists of chores for each user
-		tmplist = []
-		for user in users:
-			tmplist.append(assignment[user])
-
-		# Push to the next user in the list
-		i = 1
-		for user in users:
-			assignment[user] = tmplist[i]
-			i = i + 1
-			if(i >= numUsers):
-				i = 0
+	# Save the first value
+	lastValue = db.session.query(User).order_by(User.id.desc()).first().chores
 	
-	else:
-		# If the assignment dictionary is empty we need to do an initial assign
-		initialAssign()
-		logger.warning('Assignments not set yet, setting initial assignments')
+	for i in range(usersLen-1):
+		db.session.query(User).all()[i+1].chores = db.session.query(User).all()[i].chores
+		
+	# Set the first value
+	db.session.query(User).first().chores = lastValue
 	
-	# Send out the assignments to everyone with an email
-	emailAssignments()
-	
-	# Save assignments to file in case of program crash
-	np.save(assignmentFileName, assignment)
+	logger.info('Rotated')
 	
 	# Reset completion chart
-	for key,value in assignment.items():
-		choreCompletion[key] = False
-	logger.info('Reset completion')
+	for chore in db.session.query(Chore).all():
+		chore.complete = False
+	db.session.commit()
+	
 	
 	
 ###########################################################
@@ -186,11 +181,10 @@ def home():
 	else:
 		endDate = 'Sunday'
 	
-	# Check if chores have been assigned
-	if(assignment == {}):
-		logger.warning('No chores have been assigned yet')
-		warnings = 'No chores have been assigned, contact Seth'
-		return render_template('index.html', tableValues=assignment, warnings=warnings, endDate=endDate)
+	# Format the database info for HTML
+	assignment = {}
+	for user in db.session.query(User).all():
+		assignment[user.name] = {'chores':[x.name for x in user.chores], 'completed':[x.complete for x in user.chores]}
 	
 	# Return the table
 	return render_template('index.html', tableValues=assignment, warnings=warnings, endDate=endDate)

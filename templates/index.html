@@ -16,17 +16,27 @@
 			<th>Complete</th>
 		</thead>
 		<tbody>
+		
+		<p>{{ tableValues.items() }}</p>
+		
+		<!-- Data comes in as {name:{'chore':choreslist, 'complete':completelist}} -->
         {% for key, value in tableValues.items() %}
-			{% for i in range(value|length) %}
+			{% for i in range(value['chores']|length) %}
 				<tr>
 					<!-- Add the name and rowspan it to make it fill all rows with their chores -->
 					{% if i == 0 %}
-					<td width="30%" class="names" rowspan="{{ value|length }}">{{key}}</td>
+					<td width="30%" class="names" rowspan="{{ value['chores']|length }}">{{key}}</td>
 					{% endif %}
 					
+					
 					<!-- Check if the chore was completed, if so grey out -->
-					<td class="chore complete" width="45%">{{ value[i] }}</td>
-					<td width="25" style="padding: 1px;"><button onclick="choreComplete('{{ value[i] }}')" class="chorecomplete">Complete</button></td>
+					{% if value['completed'][i] %}
+					<td class="chore complete" width="45%">{{ value['chores'][i] }}</td>
+					{% else %}
+					<td class="chore" width="45%">{{ value['chores'][i] }}</td>
+					{% endif %}
+					
+					<td width="25" style="padding: 1px;"><button onclick="choreComplete('{{ value['chores'][i] }}')" class="chorecomplete">Complete</button></td>
 				</tr>
 			{% endfor %}
         {% endfor %}
